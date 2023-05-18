@@ -113,15 +113,14 @@ export const Minessweeper = () => {
             <div>
                 <h1 className="fs-2 mb-3">Minesweeper game!</h1>
                 {win === "Win" ? <h1 className="fs-2">You Won!</h1> : win === "Lose" ? <h1 className="fs-2">You Lose!</h1> : null}
-                {<span className="emojiStyle">{win === "Win" ? '😆' : win === "Lose" ? '😣' : '🙂'}</span>}
+                {<span onClick={() => reset()} className="emojiStyle">{win === "Win" ? '😆' : win === "Lose" ? '😣' : '🙂'}</span>}
                 <div className="container game-board mt-4" style={{pointerEvents: (win === "Lose" || win === "Win") ? "none" : "all"}}>
                     {React.Children.toArray(board.map((arr, i) => {
                         return <div className="row">{React.Children.toArray(arr.map((_, j) => board[i][j]))}</div>;
                     }))}
                 </div>
                 <div className="mt-3">
-                    <button type="button" className="btn btn-danger py-2" onClick={() => reset()}>Reset board</button>
-                    <button type="button" className="btn btn-info ms-5 py-2 px-4" onClick={() => setCellClickFunction()}>{flag ? <span className="icon1">1</span> : '🚩'}</button>
+                    <button type="button" className="btn btn-info py-2 px-4" onClick={() => setCellClickFunction()}>{flag ? <span className="icon1">1</span> : '🚩'}</button>
                 </div>
             </div>
         </div>

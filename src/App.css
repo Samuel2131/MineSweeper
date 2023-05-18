@@ -66,10 +66,16 @@
 .emojiStyle{
   font-size: 50px;
   user-select: none;
+  cursor: pointer;
 }
 
 .icon1{
   font-size: 18px;
   font-weight: bold;
   font-style: italic;
+}
+
+.btnAdd{
+  color: white !important;
+  font-size: 17px !important;
 }
