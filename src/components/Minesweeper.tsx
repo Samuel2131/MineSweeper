@@ -1,12 +1,12 @@
 
 import React, { useEffect, useState } from "react";
 import { Cell, CellProps } from "./cell";
-
-const ROW = 10;
-const COL = 10; 
+ 
 const BOMB_PERCENTAGE = 0.1;//To set bomb quantity;
 
 export const Minessweeper = () => {
+    const [ROW, setROW] = useState<number>(8);
+    const [COL, setCOL] = useState<number>(8);
     const [board, setBoard] = useState<JSX.Element[][]>(Array.from({length: ROW}, () => Array.from({length: COL})));
     const [flag, setFlag] = useState<boolean>(false);
     const [win, setWin] = useState<"Win" | "Lose" | "InProgess">("InProgess");
@@ -101,7 +101,17 @@ export const Minessweeper = () => {
     }, []);
 
     useEffect(() => {
-        if(checkWin() && win === "InProgess") {
+        if(board.length === 0){ 
+            for(let i=0;i<ROW+4;i++) {
+                let arr = []
+                for(let j=0;j<COL+4;j++) arr.push(<Cell cell={{row: i, col: j, value: 0, isFlag: false, isBomb: Math.random() < BOMB_PERCENTAGE, isShown: false}} clickCell={clickCell}/>);
+                board.push(arr);
+            }
+            setBoard([...board]);
+            setROW(ROW === 20 ? 4 : ROW+4);
+            setCOL(COL === 20 ? 4 : COL+4);
+        }
+        else if(checkWin() && win === "InProgess") {
             setWin("Win");
             showAllBomb();
         }
@@ -115,12 +125,13 @@ export const Minessweeper = () => {
                 {win === "Win" ? <h1 className="fs-2">You Won!</h1> : win === "Lose" ? <h1 className="fs-2">You Lose!</h1> : null}
                 {<span onClick={() => reset()} className="emojiStyle">{win === "Win" ? '😆' : win === "Lose" ? '😣' : '🙂'}</span>}
                 <div className="container game-board mt-4" style={{pointerEvents: (win === "Lose" || win === "Win") ? "none" : "all"}}>
-                    {React.Children.toArray(board.map((arr, i) => {
+                    {board.length !== 0 && React.Children.toArray(board.map((arr, i) => {
                         return <div className="row">{React.Children.toArray(arr.map((_, j) => board[i][j]))}</div>;
                     }))}
                 </div>
                 <div className="mt-3">
-                    <button type="button" className="btn btn-info py-2 px-4" onClick={() => setCellClickFunction()}>{flag ? <span className="icon1">1</span> : '🚩'}</button>
+                <button type="button" className="btn btn-info py-2 px-4 btnAdd fw-bold" onClick={() => setBoard([])}>+</button>
+                    <button type="button" className="btn btn-info py-2 px-4 ms-4" onClick={() => setCellClickFunction()}>{flag ? <span className="icon1">1</span> : '🚩'}</button>
                 </div>
             </div>
         </div>
