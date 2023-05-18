@@ -9,14 +9,19 @@ export type CellProps = {
 }
 
 type Props = {
-    cell: CellProps,
+    cell: CellProps;
+    background?: string;
     clickCell: (cell: CellProps) => void;
 }
 
-export const Cell = ({cell, clickCell}: Props) => {
+const numberColors: string[] = ["#0020C2", "green", "yellow", "#00008B", "#A0522D", "#00FFFF", "black", "red"];
+
+export const Cell = ({cell, clickCell, background}: Props) => {
     const {value, isBomb, isFlag, isShown} = cell;
     const shadow = isShown ? "none" : "inset 2px 2px 2px 2px #dedede";
     return (
-        <div className="col box" onClick={() => clickCell(cell)} style={{width: 40, height:30, boxShadow: shadow}}>{isFlag ? '🚩' : isShown ? (isBomb ?  '💣' : value) : null}</div>
+        <div className="col box" onClick={() => clickCell(cell)} style={{width: 45, height:35, boxShadow: shadow, backgroundColor: background || "gray"}}>
+            {isFlag ? '🚩' : isShown ? (isBomb ?  '💣' : value ? <span style={{color: numberColors[value-1]}}>{value}</span> : null) : null}
+        </div>
     );
 }

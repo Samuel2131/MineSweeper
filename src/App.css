@@ -1,3 +1,4 @@
+
 .App {
   text-align: center;
 }
@@ -54,9 +55,21 @@
   border: 1px solid white;
   font-family: Helvetica;
   font-weight: bold;
-  font-size: 0.7em;
+  font-size: 1em;
   display: flex;
   justify-content: center;
   align-items: center;
   box-shadow: inset 2px 2px 2px 2px #dedede;
+  cursor: pointer;
+}
+
+.emojiStyle{
+  font-size: 50px;
+  user-select: none;
+}
+
+.icon1{
+  font-size: 18px;
+  font-weight: bold;
+  font-style: italic;
 }

@@ -1,13 +1,11 @@
 
 import React, { useEffect, useState } from "react";
 import { Cell, CellProps } from "./cell";
-//💣🚩😆
 
-const ROW = 8;
-const COL = 8; 
-const BOMB_PERCENTAGE = 0.2;
+const ROW = 10;
+const COL = 10; 
+const BOMB_PERCENTAGE = 0.1;//To set bomb quantity;
 
-//add numbers color, add emoji win and lose, control checkWin, add color bomb cell
 export const Minessweeper = () => {
     const [board, setBoard] = useState<JSX.Element[][]>(Array.from({length: ROW}, () => Array.from({length: COL})));
     const [flag, setFlag] = useState<boolean>(false);
@@ -26,16 +24,16 @@ export const Minessweeper = () => {
     }
 
     const setFlagInBoard = (cell : CellProps) => {
+        if(cell.isShown) return;
         cell.isFlag = !cell.isFlag;
         board[cell.row][cell.col] = <Cell cell={cell} clickCell={setCellClickFunction}/>;
         setBoard([...board]);
     }
 
+    //To set click function for only cell(for add flag or show cell);
     const setCellClickFunction = () => {
         for(let i=0;i<ROW;i++){
-            for(let j=0;j<COL;j++) {
-                board[i][j] = <Cell cell={board[i][j].props.cell} clickCell={!flag ? setFlagInBoard : clickCell}/>
-            }
+            for(let j=0;j<COL;j++) board[i][j] = <Cell cell={board[i][j].props.cell} clickCell={!flag ? setFlagInBoard : clickCell}/>
         }
         setFlag(!flag);
         setBoard([...board]);
@@ -48,9 +46,7 @@ export const Minessweeper = () => {
         if(!cell.isShown){
             cell.isShown = true
             cell.value = countBomb(cell);
-            if(cell.isFlag) {
-                cell.isShown = false;
-            }
+            if(cell.isFlag) cell.isShown = false;
             if(cell.value === 0 && !cell.isBomb && !cell.isFlag){
                 for(let i=cell.row-1;i<=cell.row+1;i++){
                     for(let j=cell.col-1;j<=cell.col+1;j++){
@@ -60,8 +56,27 @@ export const Minessweeper = () => {
             }
             board[cell.row][cell.col] = <Cell cell={cell} clickCell={clickCell}/>;
             setBoard([...board]);
-            if(cell.isBomb) setWin("Lose"); 
+            if(cell.isBomb) {
+                board[cell.row][cell.col] = <Cell cell={cell} clickCell={clickCell} background="red"/>;
+                setWin("Lose"); 
+                showAllBomb();
+            }
         }
+    }
+
+    //To show all bomb position after win or lose;
+    const showAllBomb = () => {
+        for(let i=0;i<ROW;i++){
+            for(let j=0;j<COL;j++){
+                if(!board[i][j].props.cell.isShown && ((board[i][j].props.cell.isBomb) || (board[i][j].props.cell.isBomb && board[i][j].props.cell.isFlag))) {
+                    board[i][j].props.cell.isShown = true;
+                    board[i][j].props.cell.value = countBomb(board[i][j].props.cell);
+                    board[i][j].props.cell.isFlag = false;
+                    board[i][j] = <Cell cell={board[i][j].props.cell} clickCell={clickCell}/>;
+                }
+            }
+        }
+        setBoard([...board]);
     }
 
     const initBoard = () => {
@@ -86,23 +101,27 @@ export const Minessweeper = () => {
     }, []);
 
     useEffect(() => {
-        if(checkWin()) setWin("Win");
+        if(checkWin() && win === "InProgess") {
+            setWin("Win");
+            showAllBomb();
+        }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [board])
 
     return(
         <div className="d-flex mb-5">
             <div>
-                <h1 className="fs-3 mb-5">Minesweeper game!</h1>
-                {win === "Win" ? <h1 className="fs-3 mb-3">You Won!</h1> : win === "Lose" ? <h1 className="fs-3 ">You Lose!</h1> : null}
-                <div className="container game-board" style={{pointerEvents: (win === "Lose" || win === "Win") ? "none" : "all"}}>
+                <h1 className="fs-2 mb-3">Minesweeper game!</h1>
+                {win === "Win" ? <h1 className="fs-2">You Won!</h1> : win === "Lose" ? <h1 className="fs-2">You Lose!</h1> : null}
+                {<span className="emojiStyle">{win === "Win" ? '😆' : win === "Lose" ? '😣' : '🙂'}</span>}
+                <div className="container game-board mt-4" style={{pointerEvents: (win === "Lose" || win === "Win") ? "none" : "all"}}>
                     {React.Children.toArray(board.map((arr, i) => {
                         return <div className="row">{React.Children.toArray(arr.map((_, j) => board[i][j]))}</div>;
                     }))}
                 </div>
                 <div className="mt-3">
                     <button type="button" className="btn btn-danger py-2" onClick={() => reset()}>Reset board</button>
-                    <button type="button" className="btn btn-info ms-5 py-2 px-4" onClick={() => setCellClickFunction()}>🚩</button>
+                    <button type="button" className="btn btn-info ms-5 py-2 px-4" onClick={() => setCellClickFunction()}>{flag ? <span className="icon1">1</span> : '🚩'}</button>
                 </div>
             </div>
         </div>
