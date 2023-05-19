@@ -1,16 +1,21 @@
 
 import React, { useEffect, useState } from "react";
 import { Cell, CellProps } from "./cell";
- 
-const BOMB_PERCENTAGE = 0.1;//To set bomb quantity;
 
-export const Minessweeper = () => {
-    const [ROW, setROW] = useState<number>(8);
-    const [COL, setCOL] = useState<number>(8);
+type gridSettings = {
+    ROW: number,
+    COL: number,
+    BOMB_PERCENTAGE: number //To set bomb quantity;
+} 
+
+export const Minessweeper = ({ROW: R, COL: C, BOMB_PERCENTAGE}: gridSettings) => {
+    const [ROW, setROW] = useState<number>(R);
+    const [COL, setCOL] = useState<number>(C);
     const [board, setBoard] = useState<JSX.Element[][]>(Array.from({length: ROW}, () => Array.from({length: COL})));
     const [flag, setFlag] = useState<boolean>(false);
     const [win, setWin] = useState<"Win" | "Lose" | "InProgess">("InProgess");
 
+    //To count adjacent bombs to cell
     const countBomb = ({row, col}: CellProps): number => {
         let count = 0;
         for(let i=row-1;i<=row+1;i++){
@@ -41,13 +46,12 @@ export const Minessweeper = () => {
 
     const checkWin = () => board.every((arr) => arr.every((val) => (val.props.cell.isShown) || (!val.props.cell.isShown && val.props.cell.isBomb)));
 
-    const clickCell = (cell : CellProps) => {
-        if(board.length === 0) return;
+    const clickCell = (cell: CellProps) => {
+        if(cell.isFlag) return;
         if(!cell.isShown){
             cell.isShown = true
             cell.value = countBomb(cell);
-            if(cell.isFlag) cell.isShown = false;
-            if(cell.value === 0 && !cell.isBomb && !cell.isFlag){
+            if(cell.value === 0 && !cell.isBomb){
                 for(let i=cell.row-1;i<=cell.row+1;i++){
                     for(let j=cell.col-1;j<=cell.col+1;j++){
                         if(((i>=0 && i<ROW) && (j>=0 && j<COL)) && !(i === cell.row && j === cell.col)) clickCell(board[i][j].props.cell);
@@ -89,10 +93,17 @@ export const Minessweeper = () => {
     }
 
     const reset = () => {
-        setBoard([]);
+        setBoard(Array.from({length: ROW}, () => Array.from({length: COL})));
         setFlag(false);
         setWin("InProgess");
         initBoard();
+    }
+
+    const expandsBoard = () => {
+        setROW(ROW === 20 ? 8 : ROW+4);
+        setCOL(COL === 20 ? 8 : COL+4);
+        setFlag(false);
+        setWin("InProgess");
     }
 
     useEffect(() => {
@@ -100,16 +111,16 @@ export const Minessweeper = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    useEffect(() => setBoard([]), [ROW, COL]);
+
     useEffect(() => {
-        if(board.length === 0){ 
-            for(let i=0;i<ROW+4;i++) {
+        if(board.length === 0) {
+            for(let i=0;i<ROW;i++) {
                 let arr = []
-                for(let j=0;j<COL+4;j++) arr.push(<Cell cell={{row: i, col: j, value: 0, isFlag: false, isBomb: Math.random() < BOMB_PERCENTAGE, isShown: false}} clickCell={clickCell}/>);
+                for(let j=0;j<COL;j++) arr.push(<Cell cell={{row: i, col: j, value: 0, isFlag: false, isBomb: Math.random() < BOMB_PERCENTAGE, isShown: false}} clickCell={clickCell}/>);
                 board.push(arr);
             }
             setBoard([...board]);
-            setROW(ROW === 20 ? 4 : ROW+4);
-            setCOL(COL === 20 ? 4 : COL+4);
         }
         else if(checkWin() && win === "InProgess") {
             setWin("Win");
@@ -121,7 +132,7 @@ export const Minessweeper = () => {
     return(
         <div className="d-flex mb-5">
             <div>
-                <h1 className="fs-2 mb-3">Minesweeper game!</h1>
+                <h1 className="fs-2 mb-3 mt-3">Minesweeper game!</h1>
                 {win === "Win" ? <h1 className="fs-2">You Won!</h1> : win === "Lose" ? <h1 className="fs-2">You Lose!</h1> : null}
                 {<span onClick={() => reset()} className="emojiStyle">{win === "Win" ? '😆' : win === "Lose" ? '😣' : '🙂'}</span>}
                 <div className="container game-board mt-4" style={{pointerEvents: (win === "Lose" || win === "Win") ? "none" : "all"}}>
@@ -130,7 +141,7 @@ export const Minessweeper = () => {
                     }))}
                 </div>
                 <div className="mt-3">
-                <button type="button" className="btn btn-info py-2 px-4 btnAdd fw-bold" onClick={() => setBoard([])}>+</button>
+                <button type="button" className="btn btn-info py-2 px-4 btnAdd fw-bold" onClick={() => expandsBoard()}>+</button>
                     <button type="button" className="btn btn-info py-2 px-4 ms-4" onClick={() => setCellClickFunction()}>{flag ? <span className="icon1">1</span> : '🚩'}</button>
                 </div>
             </div>
