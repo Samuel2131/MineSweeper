@@ -17,6 +17,13 @@ export const Minessweeper = ({ROW: R, COL: C, BOMB_PERCENTAGE}: gridSettings) =>
 
     //To count adjacent bombs to cell
     const countBomb = ({row, col}: CellProps): number => {
+        return ([...board].splice(row-1===-1 ? 0 : row-1, row-1 === -1 ? 2 : 3).map((arr) => [...arr].splice(col-1 === -1 ? 0 : col-1, col-1 === -1 ? 2 : 3)).reduce((count, arr, i) => {
+            return count+=arr.reduce((count, val, j) => {
+                if(val.props.cell.isBomb) count++;
+                return count
+            }, 0);
+        }, 0));  
+        /*
         let count = 0;
         for(let i=row-1;i<=row+1;i++){
             for(let j=col-1;j<=col+1;j++){
@@ -26,6 +33,7 @@ export const Minessweeper = ({ROW: R, COL: C, BOMB_PERCENTAGE}: gridSettings) =>
             }
         }
         return count;
+        */   
     }
 
     const setFlagInBoard = (cell : CellProps) => {
